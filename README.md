@@ -1,0 +1,2 @@
+# Library-Management-System
+This project helps the user to search for the book and then borrow it. It also provides us the way to enter the new record upon the arrival of any new book. This project includes the concept of File Handling along with the Class and object. Since it maintains the record of the library and can also calculate the late fine and all on returning the issued book, it can come into use for any library.
