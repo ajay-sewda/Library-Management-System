@@ -1,578 +1,503 @@
-# include<bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
-# include<conio.h>
-# include<iostream>
-# include<stdlib.h>
-# include<iomanip>
-# include<string.h>
-class book
+class Book
 {
-	char bno[6];
-	char bname[50];
-	char aname[20];
-	public:
-		void createbook()
-		{
-			cout<<"\nNEW BOOK ENTRY:..\n";
-			cout<<"Enter the book no.\n";
-			cin>>bno;
-			cout<<"Enter the book name:\n";
-			gets(bname);
-			cout<<"Enter the author name:\n";
-			gets(aname);
-			cout<<"\n\nBook created...\n";
-		}
-		
-		void showbook()
-		{
-			cout<<"Book Number: "<<bno<<endl;
-			cout<<"Book Name: ";
-			puts(bname);
-			cout<<"Author Name: ";
-			puts(aname);
-		}
-		
-		void modifybook()
-		{
-			cout<<"\nBook Number"<<bno;
-			cout<<"Modify Book Name: ";
-			gets(bname);
-			cout<<"Modify Authors Name: ";
-			gets(aname);
-		}
-		
-		char *retbno()
-		{
-			return bno;
-		}
-		
-		void report()
-		{
-			cout<<bno<<setw(30)<<bname<<setw(30)<<aname<<endl;
-		}
+protected:
+    char id[10];
+    bool available;
+    char name[20],author[20];
+    double price;
+public:
+    void info();
+    bool avail(string);
+    void avail_change(string,int);
+    string get_id(){return id;}
+    void add();
+    void modify();
+    void delet();
+    friend ostream &operator<<(ostream &,Book);
+};
+class Member
+{
+protected:
+    int noOfBook;
+    char m_id[10],name[20],address[20],phone[20];
+    char id[10];
+    char dept[20];
+public:
+    bool nib(string);
+    void info();
+    void add();
+    void modify();
+    void delet();
+    void nib_change(string,string,int);
+    friend ostream &operator<<(ostream&,Member);
 };
 
-
-class student
+class Main:public Book,public Member
 {
-	char admno[6];
-	char name[20];
-	char stbno[6];
-	int token;
-	public:
-		void createstudent()
-		{
-			cout<<"NEW STUDENT ENTRY...\n";
-			cout<<"Enter the Admission Number...\n";
-			cin>>admno;
-			cout<<"Enter the student's name: \n";
-			gets(name);
-			token=0;
-			stbno[0]="\0";
-			cout<<"\n\nStudent Record Created..."<<endl;
-		}
-		
-		void showstudent().
-		{
-			cout<<"Admission Number: "<<admno;
-			cout<<"Student name:  ";
-			puts(name);
-			cout<<"No. of book issued: "<<token;
-			if(token==1)
-			cout<<"Book Number: "<<stbno;
-		}
-		
-		void modifystudent()
-		{
-			cout<<"Admission Number:  "<<admno;
-			cout<<"Modify Student Name: \n";
-			gets(name);
-		}
-		char *retadmno()
-		{
-			return admno;
-		}
-		char *retstbno()
-		{
-			return stbno;
-		}
-		int rettoken()
-		{
-			return token;
-		}
-		void addtoken()
-		{
-			token=1;
-		}
-		void resettoken()
-		{
-			token=0;
-		}
-		
-		void getstbno(char t[])
-		{
-			strcpy(stbno,t);
-		}
-		void report(char t[])
-		{
-			cout<<admno<<setw(30)<<name<<setw(20)<<token<<endl;
-		}
-		
+    int d,m,y;
+public:
+    void get_date(){cin>>d>>m>>y;}
+    void issue_book();
+    void return_book();
+    bool fine();
+    int diff();
+    friend ostream &operator<<(ostream&,Main);
 };
-
-fstream fp,fp1;
-book bk;
-student st;
-
-void writebook()
+ostream &operator<<(ostream &stream,Book ob)
 {
-	char ch;
-	fp.open("book.dat",ios::out|ios::app);
-	do
-	{
-		bk.createbook();
-		fp.write((char*)&bk,sizeof(book));
-		cout<<"Do you want to add more record...(y/n)?...";
-		cin>>ch;
-	}
-	while(ch=='y'||ch=='Y');
-	fp.close();
+    stream<<"Book id: "<<ob.id<<'\n';
+    stream<<"Name: "<<ob.name<<'\n';
+    stream<<"Author name: "<<ob.author<<'\n';
+    stream<<"Available: ";(ob.available)?stream<<"yes\n":stream<<"no\n";
+    stream<<"Price: "<<ob.price<<'\n';
+    return stream;
+}
+ostream &operator<<(ostream &stream,Member ob)
+{
+    stream<<"Member id: "<<ob.m_id<<'\n';
+    stream<<"Personal id: "<<ob.id<<'\n';
+    stream<<"Department: "<<ob.dept<<'\n';
+    stream<<"Name: "<<ob.name<<'\n';
+    stream<<"Address: "<<ob.address<<'\n';
+    stream<<"Phone no.: "<<ob.phone<<'\n';
+    stream<<"No. of books issued: "<<ob.noOfBook<<'\n';
+    return stream;
+}
+ostream &operator<<(ostream &stream,Main ob)
+{
+    stream<<"Book id: "<<ob.Book::id<<'\n';
+    stream<<"Name: "<<ob.Book::name<<'\n';
+    stream<<"Date of issue: "<<ob.d<<'-'<<ob.m<<'-'<<ob.y<<'\n';
+    return stream;
+}
+void Book::add()
+{
+    getchar();
+    cout<<"Enter Book id: ";
+    cin.getline(id,10);
+    cout<<"Enter Book name: ";
+    cin.getline(name,20);
+    cout<<"Enter Book author: ";
+    cin.getline(author,20);
+    cout<<"Enter Book price: ";
+    cin>>price;
+    available=1;
+    fstream f;
+    f.open(id,ios::out);
+    f.write((char*)this,sizeof(Book));
+    f.close();
+}
+void Book::info()
+{
+    cout<<"Book id: ";
+    getchar();
+    string i;getline(cin,i);
+    fstream f;
+    f.open(i,ios::in);
+    if(!f){cout<<"book not found\n";return;}
+    f.read((char*)this,sizeof(Book));
+    cout<<*this;
+    f.close();
+}
+void Book::delet()
+{
+    cout<<"enter book id:";
+    getchar();
+    string i;getline(cin,i);
+    if(!remove(i.c_str()))cout<<"Book deleted\n";
+    else cout<<"Book not found\n";
+}
+bool Book::avail(string bk_id)
+{
+    ifstream f(bk_id);
+    f.read((char*)this,sizeof(Book));
+    f.close();
+    return available;
+}
+void Book::avail_change(string bk_id,int i=0)
+{
+    ifstream f(bk_id);
+    f.read((char*)this,sizeof(Book));
+    if(i)available=0;
+    else available=1;
+    ofstream t("temp");
+    t.write((char*)this,sizeof(Book));
+    f.close();
+    t.close();
+    remove(bk_id.c_str());
+    rename("temp",bk_id.c_str());
+}
+void Book::modify()
+{
+    getchar();
+    cout<<"Book id: ";
+    string s;getline(cin,s);
+    ifstream f(s);
+    if(!f)
+    {
+        cout<<"Book not found\n";
+        return;
+    }
+    f.read((char*)this,sizeof(Book));
+    string c;
+    cout<<"Book id: "<<id;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new id: ";
+        cin>>id;
+    }
+    cout<<"Book name: "<<name;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new name: ";
+        cin.getline(name,20);
+    }
+    cout<<"Author name: "<<author;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new Author name: ";
+        cin.getline(author,20);
+    }
+    cout<<"Price: "<<price;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new price: ";
+        cin>>price;
+    }
+    ofstream t("temp");
+    t.write((char*)this,sizeof(Book));
+    f.close();
+    t.close();
+    remove(s.c_str());
+    rename("temp",s.c_str());
 }
 
-
-void writestudent()
+void Member::add()
 {
-	char ch;
-	fp.open("student.dat",ios::out|ios::app);
-	do
-	{
-		st.createstudent();
-		fp.write((char*)&st,sizeof(student));
-		cout<<"Do you want to add more record...(y/n)?...";
-		cin>>ch;
-	}
-	while(ch=='y'||ch=='Y');
-	fp.close();
+    getchar();
+    cout<<"Enter personal id: ";
+    cin.getline(id,10);
+    cout<<"Enter department name: ";
+    cin.getline(dept,20);
+    cout<<"Enter member name: ";
+    cin.getline(name,20);
+    cout<<"Enter address: ";
+    cin.getline(address,20);
+    cout<<"Enter phone no.: ";
+    cin.getline(phone,20);
+    cout<<"Enter member id: ";
+    cin.getline(m_id,10);
+    noOfBook=0;
+    fstream f;
+    f.open(m_id,ios::out);
+    f.write((char*)this,sizeof(Member));
+    f.close();
 }
-
-void displayspb(char n[])
+void Member::delet()
 {
-	cout<<"\nBOOK DETAILS: \n";
-	int flag=0;
-	fp.open("book.dat",ios::in);
-	
-	while(fp.read((char *)&bk,sizeof(book)))
-	{
-		if(strcmpi(bk.retbno(),n)==0)
-		{
-			bk.showbook();
-			flag=1;
-		}
-	}
-	fp.close();
-	if(flag==0)
-	cout<<"\n\nBook does not exist:";
-	
+    cout<<"enter member id:";
+    getchar();
+    string i;getline(cin,i);
+    if(!remove(i.c_str()))cout<<"Member deleted\n";
+    else cout<<"Member not found\n";
 }
-
-
-void displaysps(char n[])
+void Member::info()
 {
-	cout<<"\nSTUDENT DETAILS: \n";
-	int flag=0;
-	fp.open("student.dat",ios::in);
-	
-	while(fp.read((char *)&st,sizeof(student)))
-	{
-		if(strcmpi(st.retadmno(),n)==0)
-		{
-			st.showstudent();
-			flag=1;
-		}
-	}
-	fp.close();
-	if(flag==0)
-	cout<<"\n\nStudent does not exist:";
+    cout<<"Member id: ";
+    getchar();
+    string i;getline(cin,i);
+    fstream f;
+    f.open(i,ios::in);
+    if(!f){cout<<"member not found\n";return;}
+    f.read((char*)this,sizeof(Member));
+    cout<<*this;
+    Main ob;
+    for(int i=0;i<noOfBook;i++){
+
+        f.read((char*)&ob,sizeof(Main));
+        cout<<ob;
+    }
+    f.close();
 }
-
-void modifybook()
+void Member::modify()
 {
-	char n[6];
-	int found=0;
-	cout<<"\nModify book records:...\n";
-	cout<<"Enter book number: \n";
-	cin>>n;
-	fp.open("book.dat",ios::in|ios::out);
-	while(fp.read((char*)&bk,sizeof(book)) && found==0)
-	{
-		if(strcmpi(bk.retbno(),n)==0)
-		{
-			bk.showbook();
-			cout<<"\nEnter the new details of book:...\n";
-			bk.modifybook();
-			int pos=-1*sizeof(bk);
-			fp.seekp(pos,ios::curr);
-			fp.write((char*)&bk,sizeof(book)); 
-			cout<<"Record updated.."<<endl;
-			found=1;
-		}
-	}
-	fp.close();
-	if(found==0)
-	cout<<"Book not found:"<<endl;
+    getchar();
+    cout<<"Member id: ";
+    string s;getline(cin,s);
+    ifstream f(s);
+    if(!f)
+    {
+        cout<<"Book not found\n";
+        return;
+    }
+    f.read((char*)this,sizeof(Member));
+    string c;
+    cout<<"Member id: "<<m_id;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new id: ";
+        cin>>m_id;
+    }
+    cout<<"Student id: "<<id;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new id: ";
+        cin>>id;
+    }
+    cout<<"Department name: "<<dept;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new department name: ";
+        cin.getline(dept,20);
+    }
+    cout<<"Member name: "<<name;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new name: ";
+        cin.getline(name,20);
+    }
+    cout<<"Address: "<<address;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new address: ";
+        cin.getline(address,20);
+    }
+    cout<<"Phone no.: "<<phone;
+    cout<<"\nchange (y/n)? ";
+    getline(cin,c);
+    if(c=="y")
+    {
+        cout<<"Enter new phone no.: ";
+        cin.getline(phone,20);
+    }
+    ofstream t("temp");
+    t.write((char*)this,sizeof(Member));
+    f.close();
+    t.close();
+    remove(s.c_str());
+    rename("temp",s.c_str());
 }
-
-void modifystudent()
+bool Member::nib(string i)
 {
-	char n[6];
-	int found=0;
-	cout<<"\nModify student records:...\n";
-	cout<<"Enter admission number: \n";
-	cin>>n;
-	fp.open("student.dat",ios::in|ios::out);
-	while(fp.read((char*)&st,sizeof(student)) && found==0)
-	{
-		if(strcmpi(bk.retadmno(),n)==0)
-		{
-			st.showstudent();
-			cout<<"\nEnter the new details of student:...\n";
-			st.modifystudent();
-			int pos=-1*sizeof(st);
-			fp.seekp(pos,ios::curr);
-			fp.write((char*)&st,sizeof(student)); 
-			cout<<"Record updated.."<<endl;
-			found=1;
-		}
-	}
-	fp.close();
-	if(found==0)
-	cout<<"Student not found:"<<endl;
+    ifstream f(i);
+    f.read((char*)this,sizeof(Member));
+    f.close();
+    return (noOfBook<=3);
 }
-
-void deletestudent()
+void Main::issue_book()
 {
-	char n[6];
-	int flag=0;
-	cout<<"Delete student on the basis of adm. no.:.."<<endl;
-	cout<<"Enter the admission number..\n";
-	cin>>n;
-	fp.open("student.dat",ios::in|ios::out);
-	fstream fp2;
-	fp2.open("temp.dat",ios::out);
-	fp.seekg(0,ios::beg);
-	while(fp.read((char*)&st,sizeof(student)))
-	{
-		if(strcmpi(st.retadmno(),n)!=0)
-		{
-			fp2.write((char*)&st,sizeof(student));
-			
-		}
-		else
-		{
-			flag=1;
-		}
-	}
-	fp2.close();
-	fp.close();
-	remove("student.dat");
-	rename("temp.dat","student.dat");
-	if(flag==1)
-	cout<<"\n\n\tRecord Deleted...\n";
-	else
-	cout<<"\n\nRecord Not Found...\n";
+    getchar();
+    string t_bookid,t_mid;
+    cout<<"Enter member id: ";
+    getline(cin,t_mid);
+    cout<<"Enter book id: ";
+    getline(cin,t_bookid);
+    ifstream f1(t_mid),f2(t_bookid);
+    if(!f1)
+        cout<<"Member not found\n";
+    if(!f2)
+        cout<<"Book not found\n";
+    if(!f1 || !f2)
+    {
+        cout<<"Can not change\n";
+        return;
+    }
+    f1.close();
+    f2.close();
+    bool flag1,flag2;
+    flag1=avail(t_bookid);
+    if(!flag1)
+        cout<<"Book is not available\n";
+    flag2=nib(t_mid);
+    if(!flag2)
+        cout<<"You can not issue more than 3 books\n";
+    if(!flag1||!flag2)
+    {
+        cout<<"operation failed\n";
+            return;
+    }
+    avail_change(t_bookid,1);
+    nib_change(t_mid,t_bookid,1);
+    cout<<"Enter current date(d-m-y): ";
+    get_date();
+    fstream f(t_mid,ios::app);
+    f.write((char*)this,sizeof(Main));
+    f.close();
+
 }
-
-void deletebook()
+void Main::return_book()
 {
-	char n[6];
-	int flag=0;
-	cout<<"Delete book on the basis of book no.:.."<<endl;
-	cout<<"Enter the book number..\n";
-	cin>>n;
-	fp.open("book.dat",ios::in|ios::out);
-	fstream fp2;
-	fp2.open("temp.dat",ios::out);
-	fp.seekg(0,ios::beg);
-	while(fp.read((char*)&bk,sizeof(book)))
-	{
-		if(strcmpi(st.retbno(),n)!=0)
-		{
-			fp2.write((char*)&bk,sizeof(book));
-			
-		}
-		else
-		{
-			flag=1;
-		}
-	}
-	fp2.close();
-	fp.close();
-	remove("book.dat");
-	rename("temp.dat","book.dat");
-	if(flag==1)
-	cout<<"\n\n\tRecord Deleted...\n";
-	else
-	cout<<"\n\nRecord Not Found...\n";
+    getchar();
+    string t_bookid,t_mid;
+    cout<<"Enter member id: ";
+    getline(cin,t_mid);
+    cout<<"Enter book id: ";
+    getline(cin,t_bookid);
+    ifstream f1(t_mid),f2(t_bookid);
+    if(!f1)
+        cout<<"Member not found\n";
+    if(!f2)
+        cout<<"Book not found\n";
+    if(!f1 || !f2)
+    {
+        cout<<"Can not return\n";
+        return;
+    }
+    f2.close();
+    bool flag=avail(t_bookid);
+    if(flag)
+    {
+        cout<<"Book is not issued\n";
+        return;
+    }
+    f1.read((char*)this,sizeof(Member));
+    while(f1.read((char*)this,sizeof(Main)))
+    {
+        if(t_bookid==this->Book::id)flag=1;
+    }
+    if(!flag)
+    {
+        cout<<"you have not issued this book\n";
+        return;
+    }
+    f1.close();
+    flag=fine();
+    if(flag){
+        avail_change(t_bookid);
+        nib_change(t_mid,t_bookid,0);
+        cout<<"Book returned\n";
+    }
+    else
+    {
+        cout<<"Book not returned\n";
+    }
 }
-
-void displayalls()
+void Member::nib_change(string s,string b,int j)
 {
-	fp.open("student.dat",ios::in);
-	if(!fp)
-	{
-		cout<<"File could not be opened:"<<endl;
-		return;
-	}
-	cout<<"\n\n\t\tStudent List\n\n";
-	cout<<"===================================\n";
-	cout<<"Admission No."<<setw(10)<<"Name"<<setw(20)<<"Book issued\n";
-	cout<<"===================================\n";
-	while(fp.read((char*)&st,sizeof(student)))
-	{
-		st.report();
-	}
-	fp.close();
+    ifstream f(s);
+    f.read((char*)this,sizeof(Member));
+    Main ob;
+    ofstream t("temp");
+    if(j){
+
+        noOfBook++;
+        t.write((char*)this,sizeof(Member));
+        while(f.read((char*)&ob,sizeof(Main)))
+            t.write((char*)&ob,sizeof(Main));
+
+    }
+    else
+    {
+        noOfBook--;
+        t.write((char*)this,sizeof(Member));
+        while(f.read((char*)&ob,sizeof(Main))) {
+            if(b==ob.get_id())continue;
+            t.write((char*)&ob,sizeof(Main));
+        }
+    }
+    f.close();
+    t.close();
+    remove(s.c_str());
+    rename("temp",s.c_str());
 }
-
-void displayallb()
+bool Main::fine()
 {
-	fp.open("book.dat",ios::in);
-	if(!fp)
-	{
-		cout<<"\nFile could not be opened\n";
-		return;
-	}
-	cout<<"\n\n\t\tBOOK LIST:\n\n";
-	cout<<"=====================================\n";
-	cout<<"Book Number"<<setw(20)<<"Book Name"<<setw(25)<<"Author Name\n";
-	cout<<"================================================\n";
-	while(fp.read((char*)&bk,sizeof(book)))
-	{
-		bk.report(); 	 	
-	}
-	fp.close();
+    int d=diff();
+    if(d>30)
+    {
+        double f=(double)(d-30)/2;
+        cout<<"You have to pay "<<fixed<<setprecision(2)<<f<<" Tk. for fine\n";
+        while(1){
+        cout<<"Do you want to pay?(y/n): ";
+        string c;
+        cin>>c;
+        if(c=="y")
+        {
+            cout<<"Pay total "<<fixed<<setprecision(2)<<f<<" Tk.\n";
+            double x;
+            cin>>x;
+            if(x==f)
+                return 1;
+            else
+                cout<<"you have to pay exactly "<<fixed<<setprecision(2)<<f<<" Tk.\n";
+
+        }
+        else
+            return 0;
+        }
+    }
+    return 1;
 }
-
-void bookissue()
+int Main::diff()
 {
-	char sn[6],bn[6];
-	int found =0,flag=0;
-	cout<<"BOOK ISSUE:\n\n";
-	cout<<"============================================\n";
-	cout<<"\n\nEnter Admission number of student\n";
-	cin>>sn;
-	fp.open("student.dat",ios::in|ios::out);
-	fp1.open("book.dat",ios::in|ios::out);
-	while(fp.read((char*)&st,sizeof(student))&& found==0)
-	{
-		if(strcmpi(st.retadmno(),sn)==0)
-		{
-			found=1;
-			if(st.rettoken()==0)
-			{
-				cout<<"\n\n\tEnter the book number...\n";
-				cin>>bn;
-				while(fp1.read((char*)&bk,sizeof(book))&& flag==0)
-				{
-					if(strcmpi(bk.retbno(),bn)==0)
-					{
-						flag=1;
-						st.addtoken();
-						st.getstbno(bk.retbno());
-						int pos=-1*sizeof(st);
-						fp.seekg(pos,ios::cur);
-						fp.write((char*)&st,sizeof(student));
-						cout<<"\n\n\tBOOK ISSUED SUCCESSFULLY:\n";
-						
-					}
-				}
-				if(flag==0)
-				{
-					cout<<"Book no. does not exist..\n";
-				}
-			}
-			else
-			{
-				cout<<"You have not returned the last book:\n";
-			}
-		}
-	} 
-	if(found==0)
-	{
-		cout<<"\n\nstudent Record Not exist...\n";
-	}
-	fp.close();
-	fp1.close();
+    cout<<"Enter current date(d-m-y): ";
+    int d2,m2,y2;
+    cin>>d2>>m2>>y2;
+    int d1=d,m1=m,y1=y;
+	const int month[] = {31,29,31,30,31,30,31,31,30,31,30,31} ;
+
+	long int n1 = y1*365 + d1;
+    for (int i=0; i<m1 - 1; i++)
+        n1 += month[i];
+
+    long int n2 = y2*365 + d2;
+    for (int i=0; i<m2 - 1; i++)
+        n2 += month[i];
+
+    return n1 - n2;
 }
-
-void bookdeposit()
+int main()
 {
-	char sn[6],bn[6];
-	int found =0,flag=0,day,fine;
-	cout<<"BOOK DEPOSIT:\n\n";
-	cout<<"============================================\n";
-	cout<<"\n\nEnter Admission number of student\n";
-	cin>>sn;
-	fp.open("student.dat",ios::in|ios::out);
-	fp1.open("book.dat",ios::in|ios::out);
-	while(fp.read((char*)&st,sizeof(student))&& found==0)
-	{
-		if(strcmpi(st.retadmno(),sn)==0)
-		{
-			found=1;
-			if(st.rettoken()==1)
-			{
-				
-				while(fp1.read((char*)&bk,sizeof(book))&& flag==0)
-				{
-					if(strcmpi(bk.retbno(),st.retstbno())==0)
-					{
-						flag=1;
-						bk.showbook();
-						cout<<"\n\nBook deposited in no. of days:\n\n";
-						cin>>day;
-						if(day>15)
-						{
-							fine=(day-15)*1;
-							cout<<"\n\nFine has to be deposited Rs. "<<fine<<endl;
-						}
-						st.resettoken();
-						int pos=-1*sizeof(st);
-						fp.seekg(pos,ios::cur);
-						fp.write((char*)&st,sizeof(student));
-						cout<<"\n\n\tBOOK DEPOSITED SUCCESSFULLY:\n";
-						
-					}
-				}
-				if(flag==0)
-				{
-					cout<<"Book no. does not exist..\n";
-				}
-			}
-			else
-			{
-				cout<<"No Book is Issued:\n";
-			}
-		}
-	} 
-	if(found==0)
-	{
-		cout<<"\n\nstudent Record Not exist...\n";
-	}
-	fp.close();
-	fp1.close();
+    int n;
+    do
+    {
+        cout<<"\t\t [1]add book\n";
+        cout<<"\t\t [2]view book\n";
+        cout<<"\t\t [3]remove book\n";
+        cout<<"\t\t [4]modify book\n";
+        cout<<"\t\t [5]add Member\n";
+        cout<<"\t\t [6]view Member\n";
+        cout<<"\t\t [7]remove Member\n";
+        cout<<"\t\t [8]modify Member\n";
+        cout<<"\t\t [9]issue book\n";
+        cout<<"\t\t[10]return book\n";
+        cout<<"\t\t[11]exit\n";
+        cout<<"Enter your choice: ";
+        cin>>n;
+        system("cls");
+        if(n==1){Book b;b.add();cin.ignore();}
+        else if(n==2){Book b;b.info();cin.ignore(); }
+        else if(n==3){Book b;b.delet();cin.ignore(); }
+        else if(n==4){Book b;b.modify();cin.ignore(); }
+        else if(n==5){Member b;b.add();cin.ignore();}
+        else if(n==6){Member b;b.info();cin.ignore(); }
+        else if(n==7){Member b;b.delet();cin.ignore(); }
+        else if(n==8){Member b;b.modify();cin.ignore(); }
+        else if(n==9){Main b;b.issue_book();cin.ignore(); }
+        else if(n==10){Main b;b.return_book();cin.ignore(); }
+        else cout<<"invalid choice\n";
+        system("cls");
+    }while(n!=11);
+
+    return 0;
 }
-
-
-
-
-void start()
-{
-	cout<<"\t\t\t\t\t\tLIBRARY MANAGEMENT SYSTEM";
-	cout<<"\n\nDEVELOPER: AVINASH";
-	getch();
-}
-
-void admin()
-{
-	int ch2;
-	cout<<"\t\t\tADMINISTARTION MENU:";
-	cout<<"\n\n\t\t1.CREATE STUDENT RECORD:";
-	cout<<"\n\n\t\t2.DISPLAY ALL STUDENT RECORD:";
-	cout<<"\n\n\t\t3.DISPLAY SPECIFIC STUDENT RECORD:";
-	cout<<"\n\n\t\t4.MODIFY STUDENT RECORD:";
-    cout<<"\n\n\t\t5.DELETE STUDENT RECORD:";
- 	cout<<"\n\n\t\t6.CREATE BOOK:";
-	cout<<"\n\n\t\t7.DISPLAY ALL BOOKS:";
-	cout<<"\n\n\t\t8.DISPLAY SPECIFIC BOOK:";
-	cout<<"\n\n\t\t9.MODIFY BOOK RECORD:";
-	cout<<"\n\n\t\t10.DELETE BOOK RECORD:";
-	cout<<"\n\n\t\t11.BACK TO MAIN MENU:";
-	cout<<"\n\n\t\t PLEASE SELECT YOUR OPERATION(1-11):";
-	cin>>ch2;
-	switch(ch2)
-	{  
-		case 1:
-			writestudentrecord();
-			break;
-		case 2:
-			displayalls();
-			break;
-		case 3:
-			char num[6];
-			cout<<"Enter your Admission no.";
-			cin>>num;
-			displayspecifics(num);
-			break;
-		case 4:
-			modifystudent();
-			break;
-		case 5:
-			deletestudent();
-			break;
-		case 6:
-		    writebook();
-			 break;
-		case 7:
-		    displayallb();
-			break;
-		case 8:
-		    {
-			char num[6];
-			cout<<"Please Enter the book no.";
-			cin>>num;
-			displayspecificb(num);
-		    }
-			break;
-		case 9:
-		    modifybook();
-			break;
-		case 10:
-		    deletebook();
-			break;
-		case 11:
-		     return;
-		default:
-		    cout<<"Invalid choice, Try Again:";
-					
-	}
-    admin();
-}
-void main()
-{
-	int ch;
-	start();
-	do{
-		cout<<"\n\n\t\t\t\t\t\tMAIN MENU\n";
-		cout<<"01. BOOK ISSUE\n";
-		cout<<"02. BOOK RETURN\n";
-		cout<<"03. ADMINNISTARTOR MENU\n";
-		cout<<"04. EXIT\n";
-		cout<<"Please select  number between 1 to 4";
-		cin>>ch;
-		switch(ch)
-		{
-			case 1:
-				bookissue();
-				break;
-			case 2:
-				bookreturn();
-				break;
-			case 3:
-				admin();
-				break;
-			case 4:
-				exit(0);
-				break;
-			default:
-				cout<<"Invalid Choice:";
-				break;
-		    
-			   	
-		}
-	}
-	while(ch!=4)
-	
-		
-	
-;}
